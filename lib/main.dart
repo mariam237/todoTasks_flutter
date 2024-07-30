@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 void main() => runApp(TaskManagerApp());
 
@@ -36,6 +37,7 @@ class _TaskListPageState extends State<TaskListPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('ToDo Tasks'),
+        backgroundColor: Color.fromARGB(255, 245, 168, 194),
         actions: [
           IconButton(
             icon: Icon(Icons.analytics),
@@ -51,6 +53,8 @@ class _TaskListPageState extends State<TaskListPage> {
       body:
       tasks.length==0? Container(
         padding: EdgeInsets.all(16),
+        margin: EdgeInsets.all(16),
+        color: Color.fromARGB(255, 187, 187, 187),
         child: Text("No tasks added yet, To add tasks use the plus button", style: TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.w500),)):
        ReorderableListView(
         padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
@@ -59,14 +63,16 @@ class _TaskListPageState extends State<TaskListPage> {
           tasks.length,
           (index) {
             return Card(
+              color: Color.fromARGB(255, 187, 187, 187),
               key: Key('$index'),
               elevation: 8,
-              margin: EdgeInsets.symmetric(vertical: 8.0),
+              margin: EdgeInsets.symmetric(vertical: 12.0),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               child: ListTile(
                 leading: Checkbox(
+                  activeColor: Colors.green,
                   value: tasks[index].isCompleted,
                   onChanged: (bool? value) {
                     setState(() {
@@ -98,7 +104,7 @@ class _TaskListPageState extends State<TaskListPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: _addTask,
         child: Icon(Icons.add),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Color.fromARGB(255, 245, 168, 194),
         tooltip: 'Add Task',
         elevation: 10,
       ),
@@ -134,20 +140,24 @@ class _TaskListPageState extends State<TaskListPage> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: Text('Cancel', style: TextStyle(color: Colors.black),),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             ElevatedButton(
-              child: Text('Save'),
-              onPressed: () {
-                setState(() {
-                  tasks[index].description = taskController.text;
-                });
-                Navigator.of(context).pop();
-              },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color.fromARGB(255, 245, 168, 194), // Set the background color here
             ),
+            child: Text('Save', style: TextStyle(color: Colors.black),),
+            onPressed: () {
+              setState(() {
+                tasks[index].description = taskController.text;
+              });
+              Navigator.of(context).pop();
+            },
+          ),
+
           ],
         );
       },
@@ -178,28 +188,67 @@ class TaskInsightsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Task Insights'),
+        backgroundColor: Color.fromARGB(255, 245, 168, 194),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Total Tasks: ${tasks.length}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Completed Tasks: $completedTasks',
-              style: TextStyle(fontSize: 18, color: Colors.green, fontWeight: FontWeight.w500),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Pending Tasks: $pendingTasks',
-              style: TextStyle(fontSize: 18, color: Colors.red, fontWeight: FontWeight.w500),
-            ),
-            // Add more insights or visualizations if needed
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: 20),
+              Container(
+                height: 300,
+                child: PieChart(
+                  PieChartData(
+                    sections: [
+                      PieChartSectionData(
+                        color: Colors.green,
+                        value: completedTasks.toDouble(),
+                        title: 'Completed ${(completedTasks/tasks.length*100).toInt()}%',
+                        radius: 120,
+                        titleStyle: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      PieChartSectionData(
+                        color: Colors.red,
+                        value: pendingTasks.toDouble(),
+                     title: 'Pending ${(pendingTasks / tasks.length * 100).toInt()}%',
+                        radius: 120,
+                        titleStyle: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                    sectionsSpace: 4,
+                    centerSpaceRadius: 0,
+                    borderData: FlBorderData(show: false),
+                    pieTouchData: PieTouchData(touchCallback: (event, pieTouchResponse) {}),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Total Tasks: ${tasks.length}',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Completed Tasks: $completedTasks',
+                style: TextStyle(fontSize: 18, color: Colors.green, fontWeight: FontWeight.w500),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Pending Tasks: $pendingTasks',
+                style: TextStyle(fontSize: 18, color: Colors.red, fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
         ),
       ),
     );
